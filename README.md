@@ -10,6 +10,7 @@
         + [Go](#go)
         + [Rust](#rust)
         + [Node.js](#nodejs)
+    * [Show me the code](#show-me-the-code)
     * [Advantages and drawbacks](#advantages-and-drawbacks)
     * [Use-case scenarios](#use-case-scenarios)
     * [Caveas and gotchas](#caveas-and-gotchas)
@@ -18,6 +19,8 @@
     * [Links to repo's](#links-to-repo-s)
 
 ## What is FFI
+
+**[I don't want to read all of it - just show me the code!](#show-me-the-code)**
 
 When developing applications for server, mobile , web or embedded platforms one might often 
 find oneself in need of extra functionality, that may be unavailable in the language that software is developed in or have the need to tap into
@@ -35,6 +38,8 @@ Terminology and disambiguation:
 - Managed code - is 'home' language / runtime, unmanaged code (or 'native' code) - code after FFI bridge, i.e. C/C++/Rust code
 - Runtime / platform - things like BEAM (Erlang), CLR (dotnet), JVM (java) etc.
 
+
+MSDN link: https://learn.microsoft.com/en-us/dotnet/standard/native-interop/
 
 ## Reasons to do FFI
 
@@ -113,6 +118,74 @@ Also, it could be beneficial to utilize tools like `memory sanitizer` and / or `
 ### Node.js
 
 
+## Show me the code
+
+In your .fsproj:
+```xml
+  <ItemGroup>
+    <NativeReference Include=".\rust-src\libfoo">
+      <Kind>Static</Kind>
+      <IsCxx>False</IsCxx>
+      <ForceLoad>False</ForceLoad>
+    </NativeReference>
+  </ItemGroup>
+```
+
+In your .fs file:
+```fsharp
+module Native =
+    let [<Literal>] DllName = "libfoo"
+    
+    [<DllImport(DllName, CallingConvention=CallingConvention.Cdecl)>]
+    //(value1: i32, value2: i32) -> i32
+    extern int32 add_values(int32 value1, int32 value2)
+    
+    
+    <DllImport(DllName, CallingConvention=CallingConvention.Cdecl)>]
+    //(x: i32, y: i32, w: i32, h: i32, angle: f64) -> *const u8
+    extern IntPtr render_scene(int x, int y, int w, int h, float angle)
+```
+(for iOS it DllName should be '__Internal', more on that below - you can `#if SOME_COMPILER_DIRECTIVE` to switch it in code conditionally)
+
+Calling:
+
+```fsharp
+printfn $"Native add_values: 5 + 6 = {Native.add_values(5,6)}"
+let ret_ptr = Native.render_scene(x,y,w,h,angle)
+let ptr_hex = String.Format("{0:X8}", ret_ptr.ToInt64())
+printfn $"Native big render scene returned 0x{ptr_hex}"
+```
+
+
+
+And another example:
+
+```fsharp
+module Native =
+ [<Literal>]
+ let DllName = "libfoo.so";
+ [<Literal>]
+ let FOO_BAR_SIZE = 1337 // FOO_BAR struct size in bytes
+
+
+ [<DllImport(DllName, CallingConvention=CallingConvention.Cdecl)>]
+ extern int Set_Library_Ptr(byte[] ptrData, int flags, [<In>]IntPtr ptrValue)
+ [<DllImport(DllName, CallingConvention=CallingConvention.Cdecl)>]
+ extern unit Make_Expensive_computation(byte[] inbuf, byte[] outbuf, uint64 length,[<In>]IntPtr ptrValue, int flag)
+
+
+ let nativeWrapper (data: byte[]) (flag: int) (byteBuf: byte[])  =
+   let intPtr = NativePtr.stackalloc<byte> FOO_BAR_SIZE |> NativePtr.toNativeInt
+   let mutable res = Array.zeroCreate data.Length
+   let set_res = Set_Library_Ptr(byteBuf, 64, intPtr)
+   Make_Expensive_computation(data, res, (uint64 data.Length), intPtr, flag)
+   res
+```
+
+
+[Type marshalling](https://learn.microsoft.com/en-us/dotnet/standard/native-interop/type-marshalling#default-rules-for-marshalling-common-types)
+
+
 
 
 ## Advantages and drawbacks
@@ -125,4 +198,13 @@ Also, it could be beneficial to utilize tools like `memory sanitizer` and / or `
 
 ### iOS 
 
+
 ## Links to repo's
+
+http://www.fssnip.net/c1/title/F-yet-another-Interop-example
+
+https://learn.microsoft.com/en-us/dotnet/fsharp/language-reference/functions/external-functions
+
+https://fsharp.github.io/fsharp-core-docs/reference/fsharp-nativeinterop-nativeptrmodule.html
+
+https://learn.microsoft.com/en-us/dotnet/standard/native-interop/
