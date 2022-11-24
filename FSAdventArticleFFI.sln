@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSAdventArticleFFI", "FSAdventArticleFFI.fsproj", "{5D6A6D8B-54A0-46C0-BE39-26E2C5B57D0C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5D6A6D8B-54A0-46C0-BE39-26E2C5B57D0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D6A6D8B-54A0-46C0-BE39-26E2C5B57D0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D6A6D8B-54A0-46C0-BE39-26E2C5B57D0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D6A6D8B-54A0-46C0-BE39-26E2C5B57D0C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
