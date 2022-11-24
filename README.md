@@ -11,7 +11,10 @@
         + [Rust](#rust)
         + [Node.js](#nodejs)
     * [Show me the code](#show-me-the-code)
+    * [Example](#example)
     * [Advantages and drawbacks](#advantages-and-drawbacks)
+        + [Advantages](#advantages)
+        + [Drawbacks](#drawbacks)
     * [Use-case scenarios](#use-case-scenarios)
     * [Caveas and gotchas](#caveas-and-gotchas)
     * [Tips and tricks](#tips-and-tricks)
@@ -114,8 +117,6 @@ Also, it could be beneficial to utilize tools like `memory sanitizer` and / or `
 
 In the JVM world, FFI is mainly done using JNI ([guide](https://www.baeldung.com/jni))
 
-
-
 ### Swift / ObjC / ObjC++
 
 ### Go
@@ -127,7 +128,7 @@ In the JVM world, FFI is mainly done using JNI ([guide](https://www.baeldung.com
 
 ## Show me the code
 
-In your .fsproj:
+(Optional) In your .fsproj:
 ```xml
   <ItemGroup>
     <NativeReference Include=".\rust-src\libfoo">
@@ -191,7 +192,17 @@ module Native =
 
 [Type marshalling](https://learn.microsoft.com/en-us/dotnet/standard/native-interop/type-marshalling#default-rules-for-marshalling-common-types)
 
+## Example
 
+
+Please look into `Program.fs` & corresponding `example` folder with C code in this repo-s directory.
+It has been tested on macOS arm64 with `openssl` installed with `brew install openssl`.
+But 
+```bash
+cmake -DOPENSSL_ROOT_DIR=<openssl_dir>  -DOPENSSL_LIBRARIES=<openssl_dir/lib>
+make
+```
+should work anywhere.
 
 
 ## Advantages and drawbacks
