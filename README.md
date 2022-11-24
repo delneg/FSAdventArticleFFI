@@ -116,12 +116,89 @@ Also, it could be beneficial to utilize tools like `memory sanitizer` and / or `
 ### Java & JVM
 
 In the JVM world, FFI is mainly done using JNI ([guide](https://www.baeldung.com/jni))
+which required creating an intermediary C code using Java types.
+
+It typically looks like this:
+```c
+
+#include <stdio.h>
+#include <sys/time.h>
+
+#include "jhello_Hello.h"
+#include "../newplus/plus.h"
+
+JNIEXPORT jint JNICALL Java_jhello_Hello_plusone
+  (JNIEnv *env, jclass clazz, jint x)
+{
+    return plusone(x);
+    //return x + 1;
+}
+
+...
+```
+
+```java
+package jhello;
+
+public final class Hello
+{
+    public static native int plusone(int x);
+
+    private static void loadNative() throws Exception
+    {
+        java.io.File file = new java.io.File("."), 
+            jhello = new java.io.File(file, "jhello");
+        
+        if (jhello.exists())
+            file = jhello;
+        
+        String currentDir = file.getCanonicalPath();
+    
+        System.load(currentDir + "/libjhello.so");
+    }
+    public static void main(String[] args) throws Exception
+    {
+        // load
+        loadNative();
+        plusone(5);
+    }
+    
+```
+
+However, there's a recent development called [Project Panama](https://openjdk.org/projects/panama/) (a k a [JEP-424](https://openjdk.org/jeps/424))
+An example of using those can be observed here: https://github.com/cryptomator/jfuse
+
 
 ### Swift / ObjC / ObjC++
+
+
+Swift [can interoperate with C](https://developer.apple.com/documentation/swift/using-imported-c-functions-in-swift) (and other Cdecl-enabled FFI languages) directly using header files
+
+
+Swift also supports [C structs and enums (unions)](https://developer.apple.com/documentation/swift/using-imported-c-structs-and-unions-in-swift).
+
+However,it can sometimes be not practical - sometimes, it's easier to create an Objective-C "bridge" to provide a nice API's for both C code and Swift code.
+An example of that can be seen in my [AVIF image format decoder repo](https://github.com/delneg/Nuke-AVIF-Plugin/), and specifically [here's what Swift consumes](https://github.com/delneg/Nuke-AVIF-Plugin/blob/main/Source/AVIF/AVIFImageMacros.h)
+
+Also, there are projects like [this, that utilize Swift stable ABI to create a direct bridge between Swift <-> Rust](https://github.com/chinedufn/swift-bridge)
+
+Regarding the C++, ObjC++ can interop with it directly - so it's typically quite practical to
+implement some C++ API Surface to be consumed by ObjC++, which is in turn consumed by a Swift wrapper.
+An [example project, although a bit outdated - can be found here](https://github.com/sitepoint-editors/HelloCpp)
+
+
+There's a long & extensive [dedicated document made by a specialized workgroup regarding Swift <-> C++ interop](https://github.com/apple/swift/blob/main/docs/CppInteroperability/CppInteroperabilityManifesto.md)
+
 
 ### Go
 
 ### Rust
+
+Because of the nature of Rust (borrow-checking memory management, lack of runtime and GC , suitable type system, etc.), it's very easy to interop with it using other languages.
+
+Notably, [there's a project from Mozilla that creates a unified interface for Rust to be used from multiple languages](https://mozilla.github.io/uniffi-rs/Overview.html)
+
+
 
 ### Node.js
 
