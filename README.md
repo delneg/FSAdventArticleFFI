@@ -25,17 +25,16 @@ You might ask yourself - "Why do I even need to do FFI ? I can just re-write it 
 Well, there can be several good (in my opinion) reasons.
 
 
-1. First of all, the functionality you need may simply not be available 
+**First of all**, the functionality you need may simply not be available 
 in your language and may be cumbersome / time-consuming / error-prone to re-write it from scratch.
 For example, you should probably not rewrite cryptography functions like the ones availiable in `openssl` or `boringssl` or `libressl`, because they've been battle-tested and highly optimized.
 
 
-2. Secondly, you might want to have better performance. Of course, there is certain overhead associated with FFI calls (you might want to check out [this repo, although it's quite outdated](https://github.com/dyu/ffi-overhead))
+**Secondly**, you might want to have better performance. Of course, there is certain overhead associated with FFI calls (you might want to check out [this repo, although it's quite outdated](https://github.com/dyu/ffi-overhead))
 However, even with overhead (which might not matter in your case) - it might be much faster and / or memory-efficient than managed language implementation.
 [Here's](https://github.com/ncave/fable-raytracer/issues/1) one of the example where that might be the case - although not strictly "FFI" related, the numbers can be interesting, as well as the repo itself.
 
-
-3. And last but not least, you might want to build a shared code-base to be able to re-use it across different languages, platforms and runtimes.
+**And last but not least**, you might want to build a shared code-base to be able to re-use it across different languages, platforms and runtimes.
 For example, you might have a business with a C# Xamarin/Maui app for iOS and Android, Web app written in React, Desktop app utilizing Electron with React app sharing code with the web app,
 and a CLI written in Rust, with backend written in F# Asp.Net Core.
 
