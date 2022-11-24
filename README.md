@@ -46,6 +46,9 @@ MSDN link: https://learn.microsoft.com/en-us/dotnet/standard/native-interop/
 
 You might ask yourself - "Why do I even need to do FFI ? I can just re-write it in ~~Rust~~ F# (or C#, or VB) and use it that way!"
 
+And while dotnet has one of __the best__ (in my opinion) FFI interoperability, 
+you will need some convincing for youself (or your colleagues) to dive deep into it.
+
 Well, there can be several good (in my opinion) reasons.
 
 
@@ -109,6 +112,10 @@ Also, it could be beneficial to utilize tools like `memory sanitizer` and / or `
 
 ### Java & JVM
 
+In the JVM world, FFI is mainly done using JNI ([guide](https://www.baeldung.com/jni))
+
+
+
 ### Swift / ObjC / ObjC++
 
 ### Go
@@ -157,8 +164,7 @@ printfn $"Native big render scene returned 0x{ptr_hex}"
 ```
 
 
-
-And another example:
+And another, more complex example:
 
 ```fsharp
 module Native =
@@ -189,6 +195,25 @@ module Native =
 
 
 ## Advantages and drawbacks
+
+### Advantages
+
+- Utilize existing libraries in other languages
+- Harness the power of raw assembly via C / Rust easily
+- Share the code with other teams / projects 
+- Make "hot paths" in the code execute natively, and be able to perform low-level optimizations where it matters
+- Tools & interface for profiling, which are closer to "bare metal"
+- Do things like Xamarin (call ObjC or JNI from dotnet) and calling Linux / Windows / MacOS / BSD OS-level functions
+- Tap into hardware-specific functionalities (i.e. SIMD instructions, although these already have a lot of nice wrappers)
+
+### Drawbacks
+
+- Platform (os, architecture, kernel, platform restrictions) incompatibilities
+- Much harder build process (no more simple "dotnet run" unless you spend time to automate it)
+- Overhead is present, and it depends on the target platform & runtime etc.
+- Adds a lot of complexity for an average dotnet developer
+- Very easy to shoot yourself in the foot (leaks, crashes, vulns, etc.)
+
 
 ## Use-case scenarios
 
