@@ -192,12 +192,73 @@ There's a long & extensive [dedicated document made by a specialized workgroup r
 
 ### Go
 
+In Go, [there's a special package, that allows developers to use C (or Cdecl-compatible code) from Go, called `cgo`](https://pkg.go.dev/cmd/cgo).
+
+Here's a [guide on CGo](https://zchee.github.io/golang-wiki/cgo/)
+
+Here's an [example project, integrating Go and Rust together](https://github.com/mediremi/rust-plus-golang)
+
+There's [a long and opinionated article on Go in general and CGo in particular, which shows the quirks of the approach](https://fasterthanli.me/articles/i-want-off-mr-golangs-wild-ride)
+(there's [a follow-up post, which includes a part related to CGo](https://fasterthanli.me/articles/lies-we-tell-ourselves-to-keep-using-golang#go-is-an-island))
+
+However, [CGo is not Go](https://dave.cheney.net/2016/01/18/cgo-is-not-go) and while it can be used for FFI, has constraints and limitations, as well as practical issues.
+
+In addition to that, you have to specify linker flags, OS-specific build instructions and includes using a special syntax in the comments.
+
+It looks something like this:
+```c
+void hello(char *name);
+void whisper(char *message);
+```
+
+```go
+package main
+
+// NOTE: There should be NO space between the comments and the `import "C"` line.
+
+/*
+#cgo LDFLAGS: -L./lib -lhello
+#include "./lib/hello.h"
+*/
+import "C"
+
+func main() {
+    C.hello(C.CString("world"))
+    C.whisper(C.CString("this is code from the dynamic library"))
+}
+```
+```bash
+go build -ldflags="-r $(ROOT_DIR)lib" main_dynamic.go
+```
+
 ### Rust
 
 Because of the nature of Rust (borrow-checking memory management, lack of runtime and GC , suitable type system, etc.), it's very easy to interop with it using other languages.
 
 Notably, [there's a project from Mozilla that creates a unified interface for Rust to be used from multiple languages](https://mozilla.github.io/uniffi-rs/Overview.html)
 
+There's a project to automatically generate Rust code from C/C++ headers [called rust-bindgen](https://github.com/rust-lang/rust-bindgen), 
+as well as [it's counterpart for vice versa - to generate C/C++ headers for Rust code](https://github.com/eqrion/cbindgen)
+
+There are quite a lot of articles:
+- [in the Rustonomicon](https://doc.rust-lang.org/nomicon/ffi.html)
+- [Michael F Bryan blog Rust ffi guide](https://michael-f-bryan.github.io/rust-ffi-guide/)
+- [Secure Rust Guidelines ffi guide](https://anssi-fr.github.io/rust-guide/07_ffi.html)
+and so on.
+
+It looks mainly like this:
+```rust
+use std::os::raw::c_int;
+// import an external function from libc
+extern "C" {
+    fn abs(args: c_int) -> c_int;
+}
+// export a C-compatible function
+#[no_mangle]
+unsafe extern "C" fn mylib_f(param: u32) -> i32 {
+    if param == 0xCAFEBABE { 0 } else { -1 }
+}
+```
 
 
 ### Node.js
