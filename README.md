@@ -1,5 +1,21 @@
 # Communicating with other languages and runtimes, aka FFI in F#
 
+- [Communicating with other languages and runtimes, aka FFI in F#](#communicating-with-other-languages-and-runtimes--aka-ffi-in-f-)
+    * [What is FFI](#what-is-ffi)
+    * [Reasons to do FFI](#reasons-to-do-ffi)
+    * [Decision making](#decision-making)
+    * [Comparison with other languages / runtimes methods to do FFI](#comparison-with-other-languages---runtimes-methods-to-do-ffi)
+        + [Java & JVM](#java---jvm)
+        + [Swift / ObjC / ObjC++](#swift---objc---objc--)
+        + [Go](#go)
+        + [Rust](#rust)
+        + [Node.js](#nodejs)
+    * [Advantages and drawbacks](#advantages-and-drawbacks)
+    * [Use-case scenarios](#use-case-scenarios)
+    * [Caveas and gotchas](#caveas-and-gotchas)
+    * [Tips and tricks](#tips-and-tricks)
+        + [iOS](#ios)
+    * [Links to repo's](#links-to-repo-s)
 
 ## What is FFI
 
@@ -14,7 +30,10 @@ Although the FFI should not be confused with languages that operate on the same 
 for example, C# / F# interoperability is not actually FFI because they compile to IL.
 The same argument is true for Java / Kotlin / Scala / Clojure , as well as Erlang / Elixir ([wiki](https://en.wikipedia.org/wiki/Foreign_function_interface#Special_cases))
 
-In dotnet FFI is also known by the name of P/Invoke.
+Terminology and disambiguation:
+- In dotnet FFI is also known by the name of P/Invoke.
+- Managed code - is 'home' language / runtime, unmanaged code (or 'native' code) - code after FFI bridge, i.e. C/C++/Rust code
+- Runtime / platform - things like BEAM (Erlang), CLR (dotnet), JVM (java) etc.
 
 
 ## Reasons to do FFI
@@ -42,8 +61,43 @@ So, it might be a good idea to de-couple the logic from the CLI into shared Rust
 which can be built by CI to be re-used across mobile app, web app & desktop app via WASM, CLI app as a Cargo crate and the backend & mobile apps via dotnet FFI (also called P/Invoke).
 An example of a similar setup can be found on github of messaging app called Signal - https://github.com/signalapp/libsignal
 
+## Decision making
+
+After all, it all comes down to a decision - to be or not to be (or, in this case - to do FFI or keep it managed)
+These are the criteria that I might use in order to make such a decision:
+
+1. **Ease of consumption**
+
+_Will my FFI-enabled code be easy to consume for my clients (other developers)_ ?
+
+If you're developing a public dotnet library on github, it can be challenging to make it accessible to broad range of platforms that dotnet runs on,
+because you'll need to compile your FFI library independently from your dotnet code. A good example is [this BLAKE3 hashing library](https://github.dev/xoofx/Blake3.NET). 
+It has a Rust crate `blake3` wrapped in a FFI-friendly package, together with CI-friendly build scripts, and has pre-built versions for Linux, macOS and Windows for x86_64, arm and arm64 architectures.
+
+However, if you're planning to use your FFI code in company project for backend app running on x86_64 Linux with a recent Kernel, that may be totally not a concern for you.
+
+2. **Rewrite possibility in managed code**
+
+_Maybe it's better to write the desired functionality in F# / C# after all ?_
+
+Sometimes, that's simply not possible. In another case, you might be better off having a well-performing & optimized managed implementation,
+than trying to debug another "segmentation fault. core dumped" error.
 
 
+3. **Small FFI surface**
+ 
+_Will I be able to keep the exposed "unsafe" / "private" surface of the FFI-code small & approachable ?_
+
+Perhaps, sometime after your code using FFI will be landed in production, someone else will have to take a look at it - 
+and it may be very difficult to change some FFI-related code without knowing it's purpose by trying to check for exposed headers (`nm -d libfoo.so`) 
+and guessing what the various flags passed to the function do.
+
+4. **Application safety & stability**
+
+_Did I manage to wrap the FFI code in a way that's safe (first of all, memory-safe) and secure (i.e. introduces no new vulnerabilities and doesn't lead to unexpected crashes) ?_
+
+To help make the answer to this question a confident "Yes", you might employ the help of such tools like Unit tests, Integration tests and Fuzzer testing.
+Also, it could be beneficial to utilize tools like `memory sanitizer` and / or `valgrind` in order to detect memory leaks early, as well as the wide range of dotnet-specific tools available.
 
 
 ## Comparison with other languages / runtimes methods to do FFI
