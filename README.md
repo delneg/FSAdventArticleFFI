@@ -389,6 +389,16 @@ make
 ```
 should work anywhere.
 
+The goal of the program is to encrypt a string using AES XTS encryption, and then decrypt it to check if it's gone through a round trip correctly.
+
+When run, the program outputs the following result:
+```
+Will encode :'Calling C from F#'
+Encryption key:'MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMw==', initialization vector: 'MDEyMzQ1Njc4OTAxMjM0NQ=='
+Ciphertext[17]: 63630A73F208EF8CC3ECE1937AFCDB61210000000000000000000000000000000000 - encrypted in 46ms
+Plaintext[17]: Calling C from F# - decrypted in 46ms
+```
+
 
 ## Advantages and drawbacks
 
