@@ -10,6 +10,7 @@
         + [Go](#go)
         + [Rust](#rust)
         + [Node.js](#nodejs)
+        + [Others](#others)
     * [Show me the code](#show-me-the-code)
     * [Example](#example)
     * [Advantages and drawbacks](#advantages-and-drawbacks)
@@ -203,7 +204,7 @@ There's [a long and opinionated article on Go in general and CGo in particular, 
 
 However, [CGo is not Go](https://dave.cheney.net/2016/01/18/cgo-is-not-go) and while it can be used for FFI, has constraints and limitations, as well as practical issues.
 
-In addition to that, you have to specify linker flags, OS-specific build instructions and includes using a special syntax in the comments.
+In addition to that, you have to specify [linker flags](https://github.com/winfsp/cgofuse/blob/master/fuse/host_cgo.go#L19), [OS-specific build instructions](https://dh1tw.de/2019/12/cross-compiling-golang-cgo-projects/) and [includes using a special syntax in the comments.](https://akrennmair.github.io/golang-cgo-slides/#9)
 
 It looks something like this:
 ```c
@@ -263,6 +264,52 @@ unsafe extern "C" fn mylib_f(param: u32) -> i32 {
 
 ### Node.js
 
+Because Node.js runs on top of V8, an execution engine written in C++ and due to JS being an interpreted language, it's pretty easy to dynamically import C code.
+
+It's mainly done using the [node-ffi library](https://github.com/node-ffi/node-ffi), which has a nice [tutorial here](https://github.com/node-ffi/node-ffi/wiki/Node-FFI-Tutorial)
+
+The code looks something like this:
+```javascript
+var ref = require('ref');
+var ffi = require('ffi');
+
+// typedef
+var sqlite3 = ref.types.void; // we don't know what the layout of "sqlite3" looks like
+var sqlite3Ptr = ref.refType(sqlite3);
+var sqlite3PtrPtr = ref.refType(sqlite3Ptr);
+var stringPtr = ref.refType(ref.types.CString);
+
+// binding to a few "libsqlite3" functions...
+var libsqlite3 = ffi.Library('libsqlite3', {
+  'sqlite3_open': [ 'int', [ 'string', sqlite3PtrPtr ] ],
+  'sqlite3_close': [ 'int', [ sqlite3Ptr ] ],
+  'sqlite3_exec': [ 'int', [ sqlite3Ptr, 'string', 'pointer', 'pointer', stringPtr ] ],
+  'sqlite3_changes': [ 'int', [ sqlite3Ptr ]]
+});
+
+// now use them:
+var dbPtrPtr = ref.alloc(sqlite3PtrPtr);
+libsqlite3.sqlite3_open("test.sqlite3", dbPtrPtr);
+var dbHandle = dbPtrPtr.deref();
+```
+
+There's also a [neat wrapper, called node-ffi-napi](https://github.com/node-ffi-napi/node-ffi-napi) which you can use.
+
+In addition to that, [you can use Node.js headers to write Node.js native modules directly](https://blog.risingstack.com/writing-native-node-js-modules/),
+also called native addons. An [example project of Rust native module can be seen in here](https://blog.logrocket.com/rust-and-node-js-a-match-made-in-heaven/)
+And a [Rust project that simplifies writing native modules](https://github.com/napi-rs/napi-rs) as well as alternatives like [node-bindgen](https://github.com/infinyon/node-bindgen)
+
+
+Because the Javascript is a browser language, Node.js also supports Webassembly (WASM), 
+which can be used to simplify running untrusted code in a constrained environment or to compile native code (C/C++/Rust) to performant WASM.
+
+An example of such usage [with WAT text code format can be seen here, with benchmarks against other possible use cases](https://github.com/bengl/sbffi/blob/master/test/bench.js#L19)
+
+
+### Others
+
+Although I've covered quite a few languages that I've had experience with, there's definitely more to it - for example, I left out BEAM languages, as well as Python.
+After all, this is an article about FFI in dotnet - and mainly it's usage with F#.
 
 ## Show me the code
 
