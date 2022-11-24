@@ -32,7 +32,6 @@ For example, you should probably not rewrite cryptography functions like the one
 
 2. Secondly, you might want to have better performance. Of course, there is certain overhead associated with FFI calls (you might want to check out [this repo, although it's quite outdated](https://github.com/dyu/ffi-overhead))
 However, even with overhead (which might not matter in your case) - it might be much faster and / or memory-efficient than managed language implementation.
-
 [Here's](https://github.com/ncave/fable-raytracer/issues/1) one of the example where that might be the case - although not strictly "FFI" related, the numbers can be interesting, as well as the repo itself.
 
 
