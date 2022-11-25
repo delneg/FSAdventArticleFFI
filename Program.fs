@@ -4,7 +4,7 @@ open System.Runtime.InteropServices
 open FSharp.Core
 
 module Native =
-    let [<Literal>] DllName = "example/libaesxts"
+    let [<Literal>] DllName = "example_c/libaesxts"
     
     [<DllImport(DllName, CallingConvention=CallingConvention.Cdecl)>]
     // int encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *key, unsigned char *iv, unsigned char *ciphertext);
