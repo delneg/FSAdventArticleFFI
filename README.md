@@ -461,6 +461,52 @@ this.View.AddSubview(imageView)
 
 ### Zig
 
+There's a simple Zig example in this repo, which can be built with
+
+`zig build-lib simplemath.zig -dynamic`
+
+```zig
+export fn add(a: i32, b: i32) i32 {
+    return a + b;
+}
+export fn mult(a: i32, b: i32) i32 {
+  return a * b;
+}
+export fn ziggZaggTest() void {
+  ziggZagg() catch {};
+} 
+```
+
+```fsharp
+module Native_Zig =
+    let [<Literal>] DllName = "example_zig/libsimplemath"
+    
+    [<DllImport(DllName, CallingConvention=CallingConvention.Cdecl)>]
+    extern int add(int a, int b)
+    
+    [<DllImport(DllName, CallingConvention=CallingConvention.Cdecl)>]
+    extern int mult(int a, int b)
+    
+    [<DllImport(DllName, CallingConvention=CallingConvention.Cdecl)>]
+    extern unit ziggZaggTest()
+    
+printfn $"Zig add 5 + 6 = {Native_Zig.add (5,6)} , mult 11 * 42 = {Native_Zig.mult (11,42)}"
+printfn "Zig zagg test"
+Native_Zig.ziggZaggTest()
+```
+
+Output:
+```bash
+Zig add 5 + 6 = 11 , mult 11 * 42 = 462
+Zig zagg test
+1
+2
+Zigg
+4
+Zagg
+Zigg
+...
+```
 
 
 ## Advantages and drawbacks

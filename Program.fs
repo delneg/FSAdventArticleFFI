@@ -18,6 +18,18 @@ module Native =
     // void cleanup(void);
     extern unit cleanup()
 
+module Native_Zig =
+    let [<Literal>] DllName = "example_zig/libsimplemath"
+    
+    [<DllImport(DllName, CallingConvention=CallingConvention.Cdecl)>]
+    extern int add(int a, int b)
+    
+    [<DllImport(DllName, CallingConvention=CallingConvention.Cdecl)>]
+    extern int mult(int a, int b)
+    
+    [<DllImport(DllName, CallingConvention=CallingConvention.Cdecl)>]
+    extern unit ziggZaggTest()
+    
 let dataString =  "Calling C from F#"
 
 printfn $"Will encode :'{dataString}'"
@@ -49,3 +61,8 @@ sw_decrypt.Stop()
 printfn $"Plaintext[{plaintext_len}]: {System.Text.Encoding.UTF8.GetString(plaintext)} - decrypted in {sw.ElapsedMilliseconds}ms"
 
 Native.cleanup()
+
+printfn $"Zig add 5 + 6 = {Native_Zig.add (5,6)} , mult 11 * 42 = {Native_Zig.mult (11,42)}"
+
+printfn "Zig zagg test"
+Native_Zig.ziggZaggTest()
