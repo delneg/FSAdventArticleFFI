@@ -12,7 +12,10 @@
         + [Node.js](#nodejs)
         + [Others](#others)
     * [Show me the code](#show-me-the-code)
-    * [Example](#example)
+    * [Examples](#examples)
+        + [C](#c)
+        + [Rust](#rust-1)
+        + [Zig](#zig)
     * [Advantages and drawbacks](#advantages-and-drawbacks)
         + [Advantages](#advantages)
         + [Drawbacks](#drawbacks)
@@ -20,7 +23,7 @@
     * [Caveas and gotchas](#caveas-and-gotchas)
     * [Tips and tricks](#tips-and-tricks)
         + [iOS](#ios)
-    * [Links to repo's](#links-to-repo-s)
+    * [Userful links](#userful-links)
 
 ## What is FFI
 
