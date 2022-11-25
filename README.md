@@ -311,6 +311,12 @@ An example of such usage [with WAT text code format can be seen here, with bench
 Although I've covered quite a few languages that I've had experience with, there's definitely more to it - for example, I left out BEAM languages, as well as Python.
 After all, this is an article about FFI in dotnet - and mainly it's usage with F#.
 
+
+You might be interested [in automated binding generator - although at the moment of writing this, it only supports C#](https://github.com/ralfbiedert/interoptopus). 
+It's possible to generate C# bindings in a separate project and use that in F# (or re-write only the needed parts in F# by hand).
+
+
+
 ## Show me the code
 
 (Optional) In your .fsproj:
@@ -338,7 +344,7 @@ module Native =
     //(x: i32, y: i32, w: i32, h: i32, angle: f64) -> *const u8
     extern IntPtr render_scene(int x, int y, int w, int h, float angle)
 ```
-(for iOS it DllName should be '__Internal', more on that below - you can `#if SOME_COMPILER_DIRECTIVE` to switch it in code conditionally)
+(for iOS it DllName should be '__Internal', [more on that here](https://learn.microsoft.com/en-us/xamarin/ios/platform/native-interop?source=recommendations#static-libraries)  - you can `#if SOME_COMPILER_DIRECTIVE` to switch it in code conditionally)
 
 Calling:
 
@@ -377,10 +383,12 @@ module Native =
 
 [Type marshalling](https://learn.microsoft.com/en-us/dotnet/standard/native-interop/type-marshalling#default-rules-for-marshalling-common-types)
 
-## Example
+## Examples
 
 
-Please look into `Program.fs` & corresponding `example` folder with C code in this repo-s directory.
+### C
+
+Please look into `Program.fs` & corresponding `example_c` folder with C code in this repo-s directory.
 It has been tested on macOS arm64 with `openssl` installed with `brew install openssl`.
 But 
 ```bash
@@ -398,6 +406,61 @@ Encryption key:'MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3
 Ciphertext[17]: 63630A73F208EF8CC3ECE1937AFCDB61210000000000000000000000000000000000 - encrypted in 46ms
 Plaintext[17]: Calling C from F# - decrypted in 46ms
 ```
+
+### Rust
+
+Feel free to check out my demo of Rust <-> F# interop running on iOS here:
+
+https://github.com/delneg/fable-raytracer-ios-net6
+
+Despite the name, it was recently updated to dotnet 7.
+
+The interesting part is passing the pointer Rust -> F# -> ObjC platform code (to [CGDataProvider](https://developer.apple.com/documentation/coregraphics/cgdataprovider))
+
+P.S. I'm not sure this code is memory-safe though, so if you find a potential leak, please ping me.
+
+```rust
+#[no_mangle]
+pub unsafe extern "C" fn render_scene(x: i32, y: i32, w: i32, h: i32, angle: f64) -> *const u8 {
+    let buffer = get_buffer();
+    RayTracerDemo::renderScene(&buffer, &x, &y, &w, &h, &angle);
+    buffer.as_ptr()
+}
+```
+
+```fsharp
+module Native =
+    let [<Literal>] DllName = "__Internal"
+    
+    [<DllImport(DllName, CallingConvention=CallingConvention.Cdecl)>]
+    extern IntPtr render_scene(nativeint x, nativeint y, nativeint w, nativeint h, float angle)
+    
+    let getUIImageForRGBAData width height (dataPtr:IntPtr) (dataLen:int) =
+        // https://gist.github.com/irskep/e560be65163efcb04115
+        let bytesPerPixel = 4
+        let scanWidth = bytesPerPixel * width
+        let provider = new CGDataProvider(dataPtr, dataLen)
+        let colorSpaceRef = CGColorSpace.CreateDeviceRGB()
+        let bitMapInfo = CGBitmapFlags.Last
+        let renderingIntent = CGColorRenderingIntent.Default
+        let imageRef = new CGImage(width,height,8, bytesPerPixel * 8, scanWidth, colorSpaceRef, bitMapInfo, provider,null,false,renderingIntent)
+        new UIImage(imageRef)
+
+...
+
+let ret_ptr = Native.render_scene(nativeint x,nativeint y,nativeint w,nativeint h,angle)
+let ptr_hex = String.Format("{0:X8}", ret_ptr.ToInt64())
+printfn $"Native big render scene returned 0x{ptr_hex}"
+let imageView = new UIImageView()
+imageView.Frame <- CGRect(float x, float y, float w, float h)
+imageView.Image <- Native.getUIImageForRGBAData w h ret_ptr len
+this.View.AddSubview(imageView)
+```
+
+
+
+### Zig
+
 
 
 ## Advantages and drawbacks
@@ -430,7 +493,7 @@ Plaintext[17]: Calling C from F# - decrypted in 46ms
 ### iOS 
 
 
-## Links to repo's
+## Userful links
 
 http://www.fssnip.net/c1/title/F-yet-another-Interop-example
 
@@ -439,3 +502,7 @@ https://learn.microsoft.com/en-us/dotnet/fsharp/language-reference/functions/ext
 https://fsharp.github.io/fsharp-core-docs/reference/fsharp-nativeinterop-nativeptrmodule.html
 
 https://learn.microsoft.com/en-us/dotnet/standard/native-interop/
+
+https://learn.microsoft.com/en-us/dotnet/standard/native-interop/type-marshalling#default-rules-for-marshalling-common-types
+
+
