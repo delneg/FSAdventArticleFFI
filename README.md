@@ -532,6 +532,13 @@ Zigg
 
 ## Use-case scenarios
 
+- Web Apps in WASM - [Blazor WASM native dependencies](https://learn.microsoft.com/en-us/aspnet/core/blazor/webassembly-native-dependencies?view=aspnetcore-7.0#use-native-code)
+- Mobile apps [Android](https://learn.microsoft.com/en-us/xamarin/android/platform/native-libraries) and [iOS](https://learn.microsoft.com/en-us/xamarin/ios/platform/native-interop)
+- Backends (code in Examples)
+- Performance optimizations
+- Re-using existing libraries - like [SQLite wrapper in C#](https://github.com/praeclarum/sqlite-net/blob/master/src/SQLite.cs#L4448)
+- Access platform-specific libraries like [libsoundio wrapper in Zig](https://ziglang.org/learn/overview/#integration-with-c-libraries-without-ffibindings)
+
 ## Caveas and gotchas
 
 ## Tips and tricks
