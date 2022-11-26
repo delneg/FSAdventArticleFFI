@@ -23,7 +23,7 @@
     * [Use-case scenarios](#use-case-scenarios)
     * [Caveas and gotchas](#caveas-and-gotchas)
     * [Tips and tricks](#tips-and-tricks)
-    * [Userful links](#userful-links)
+    * [Useful links](#useful-links)
 
 ## What is FFI
 
@@ -623,7 +623,7 @@ and [here's the code](https://github.com/secana/Native-FSharp-Library)
 
 
 
-## Userful links
+## Useful links
 
 http://www.fssnip.net/c1/title/F-yet-another-Interop-example
 
