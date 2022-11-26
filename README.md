@@ -16,6 +16,7 @@
         + [C](#c)
         + [Rust](#rust-1)
         + [Zig](#zig)
+        + [Swift](#swift)
     * [Advantages and drawbacks](#advantages-and-drawbacks)
         + [Advantages](#advantages)
         + [Drawbacks](#drawbacks)
@@ -511,6 +512,41 @@ Zigg
 ...
 ```
 
+### Swift
+
+[It turns out](https://gist.github.com/HiImJulien/c79f07a8a619431b88ea33cca51de787), you can compile Swift code to shared library and execute it normally, utilizing the "hidden" `@_cdecl()` attribute.
+
+```swift
+import Foundation
+@_cdecl("say_hello")
+public func say_hello(){
+    print("Hello from Swift!")
+}
+
+@_cdecl("advanced_random")
+public func advanced_random(num: Int, num2: Int) -> Int {
+  return Int.random(in: num..<num2)
+}
+```
+```fsharp
+module Native_Swift =
+    let [<Literal>] DllName = "example_swift/libfunc"
+    
+    [<DllImport(DllName, CallingConvention=CallingConvention.Cdecl)>]
+    extern int advanced_random(int num, int num2)
+    
+    [<DllImport(DllName, CallingConvention=CallingConvention.Cdecl)>]
+    extern unit say_hello()
+    
+Native_Swift.say_hello()
+printfn $"Random number from Swift: {Native_Swift.advanced_random(1,100)}"
+```
+
+Output:
+```bash
+Hello from Swift!
+Random number from Swift: 21
+```
 
 ## Advantages and drawbacks
 
