@@ -25,6 +25,12 @@
     * [Tips and tricks](#tips-and-tricks)
     * [Useful links](#useful-links)
 
+**DISCLAIMER:**
+
+All of the code & text that's in the repo and in the README is based on my own experience, and as such may be prone to error, misunderstanding or other flaws.
+Use at your own risk.
+
+
 ## What is FFI
 
 **[I don't want to read all of it - just show me the code!](#show-me-the-code)**
