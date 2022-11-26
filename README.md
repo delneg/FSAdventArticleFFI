@@ -22,7 +22,6 @@
     * [Use-case scenarios](#use-case-scenarios)
     * [Caveas and gotchas](#caveas-and-gotchas)
     * [Tips and tricks](#tips-and-tricks)
-        + [iOS](#ios)
     * [Userful links](#userful-links)
 
 ## What is FFI
@@ -44,6 +43,7 @@ Terminology and disambiguation:
 - In dotnet FFI is also known by the name of P/Invoke.
 - Managed code - is 'home' language / runtime, unmanaged code (or 'native' code) - code after FFI bridge, i.e. C/C++/Rust code
 - Runtime / platform - things like BEAM (Erlang), CLR (dotnet), JVM (java) etc.
+- Name mangling - means the names of exported functions are changed and become something like `_Z13lib_exported`
 
 
 MSDN link: https://learn.microsoft.com/en-us/dotnet/standard/native-interop/
@@ -546,7 +546,33 @@ Zigg
 
 ## Tips and tricks
 
-### iOS 
+- If you want to inspect your DLL that you've built, check out http://penet.io/
+- If you want to explore the native library that you've build in C/C++/Rust/Go/Zig/etc., use `otool -TV lib.dylib` or `nm -gU lib.dylib` for macOS, `dumpbin /EXPORTS lib.dll` for Windows, and `readelf -s lib.so` or `nm -D lib.so` for Linux (or `nm -gDC lib.so` for demangled version)
+- You can do it the other way around, [here's a blog post on calling F# from C++](https://secanablog.wordpress.com/2020/02/01/writing-a-native-library-in-f-which-can-be-called-from-c/)
+and [here's the code](https://github.com/secana/Native-FSharp-Library)
+- A few functions and namespaces that you might find useful:
+  ```fsharp
+  NativePtr.stackalloc
+  GC.AllocateUninitializedArray
+  Marshal.AllocHGlobal
+  Marshal.FreeHGlobal
+  NativePtr.toNativeInt
+  NativePtr.ofNativeInt
+  NativePtr.nullPtr
+  Marshal.PtrToStringAnsi
+  ArrayPool.Shared.Rent
+  ArrayPool.Shared.Return
+  GC.KeepAlive
+  fixed keyword
+  Unchecked.defaultof<'T>
+  ```
+- https://godbolt.org/ - compiler explorer
+- [Byref](https://learn.microsoft.com/en-us/dotnet/fsharp/language-reference/byrefs), a k a "by reference" (opposed to "by value")
+- Using native libs in [Xamarin](https://learn.microsoft.com/en-us/xamarin/cross-platform/cpp/)
+- Sandboxing native code - running WASM code in WASI environment in an Avalonia app via [Wasmtime](https://github.com/bytecodealliance/wasmtime) runtime [link to repo](https://github.com/delneg/WasmtimeFableRaytracerFSharpAvalonia)
+- Inline ASM in F# [post](https://blog.devgenius.io/inline-assembly-in-f-net-language-6d70ab9f58c1?gi=2a8fb0a2ffa8)
+
+
 
 
 ## Userful links
@@ -561,4 +587,5 @@ https://learn.microsoft.com/en-us/dotnet/standard/native-interop/
 
 https://learn.microsoft.com/en-us/dotnet/standard/native-interop/type-marshalling#default-rules-for-marshalling-common-types
 
+https://learn.microsoft.com/en-us/dotnet/fsharp/language-reference/fixed
 
