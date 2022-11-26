@@ -323,7 +323,7 @@ It's possible to generate C# bindings in a separate project and use that in F# (
 
 ## Show me the code
 
-(Optional) In your .fsproj:
+(Optional, skip if your target platform is macos/linux/windows and not xamarin) In your .fsproj:
 ```xml
   <ItemGroup>
     <NativeReference Include=".\rust-src\libfoo">
@@ -580,9 +580,21 @@ Random number from Swift: 21
 
 ## Caveas and gotchas
 
+- AFAIK, currently you can not use a static library on regular dotnet (that is, non-Xamarin or something else). 
+I may be wrong though, but generally look for .so / .dylib compilation - shared libraries work even without added code to .fsproj
+- `NativeFileReference` <> `NativeReference` - small difference in spelling, but totally different meaning
+- On iOS / macOS there _are a few extra steps_:
+  - `MonoTouch.ObjCRuntime.Dlfcn.dlopen ("/full/path/to/Animal.dylib", 0);` if using a dylib
+  - `__Internal` in DllImport - that means, you can't use more than one static library that way (which is fine in most cases). Solution to that problem ? Pack them into .framework or .xcframework
+- Library names search [differs on different platforms](https://learn.microsoft.com/en-us/dotnet/standard/native-interop/cross-platform?source=recommendations), all that .dylib / .so / .dll you see
+- Starting with .NET Core 3.1, you can write [custom import resolver to search for your library path](https://learn.microsoft.com/en-us/dotnet/standard/native-interop/cross-platform#custom-import-resolver)
+- AFAIK, the source generation for `LibraryImport` [attribute, added in dotnet 7](https://learn.microsoft.com/en-us/dotnet/standard/native-interop/pinvoke-source-generation), only works for C# code
+
+
 ## Tips and tricks
 
 - If you want to inspect your DLL that you've built, check out http://penet.io/
+- Native interop [best practices](https://learn.microsoft.com/en-us/dotnet/standard/native-interop/best-practices)
 - If you want to explore the native library that you've build in C/C++/Rust/Go/Zig/etc., use `otool -TV lib.dylib` or `nm -gU lib.dylib` for macOS, `dumpbin /EXPORTS lib.dll` for Windows, and `readelf -s lib.so` or `nm -D lib.so` for Linux (or `nm -gDC lib.so` for demangled version)
 - You can do it the other way around, [here's a blog post on calling F# from C++](https://secanablog.wordpress.com/2020/02/01/writing-a-native-library-in-f-which-can-be-called-from-c/)
 and [here's the code](https://github.com/secana/Native-FSharp-Library)
@@ -607,7 +619,7 @@ and [here's the code](https://github.com/secana/Native-FSharp-Library)
 - Using native libs in [Xamarin](https://learn.microsoft.com/en-us/xamarin/cross-platform/cpp/)
 - Sandboxing native code - running WASM code in WASI environment in an Avalonia app via [Wasmtime](https://github.com/bytecodealliance/wasmtime) runtime [link to repo](https://github.com/delneg/WasmtimeFableRaytracerFSharpAvalonia)
 - Inline ASM in F# [post](https://blog.devgenius.io/inline-assembly-in-f-net-language-6d70ab9f58c1?gi=2a8fb0a2ffa8)
-
+- A guide on [interop attributes](https://learn.microsoft.com/en-us/dotnet/standard/native-interop/apply-interop-attributes)
 
 
 
@@ -624,4 +636,11 @@ https://learn.microsoft.com/en-us/dotnet/standard/native-interop/
 https://learn.microsoft.com/en-us/dotnet/standard/native-interop/type-marshalling#default-rules-for-marshalling-common-types
 
 https://learn.microsoft.com/en-us/dotnet/fsharp/language-reference/fixed
+
+https://github.com/swig/swig
+
+https://learn.microsoft.com/en-us/xamarin/android/platform/native-libraries
+https://learn.microsoft.com/en-us/xamarin/ios/platform/native-interop
+
+https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.nativelibrary?view=net-7.0
 
