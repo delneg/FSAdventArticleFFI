@@ -201,7 +201,7 @@ Swift [can interoperate with C](https://developer.apple.com/documentation/swift/
 Swift also supports [C structs and enums (unions)](https://developer.apple.com/documentation/swift/using-imported-c-structs-and-unions-in-swift).
 
 However,it can sometimes be not practical - sometimes, it's easier to create an Objective-C "bridge" to provide a nice API's for both C code and Swift code.
-An example of that can be seen in my [AVIF image format decoder repo](https://github.com/delneg/Nuke-AVIF-Plugin/), and specifically [here's what Swift consumes](https://github.com/delneg/Nuke-AVIF-Plugin/blob/main/Source/AVIF/AVIFImageMacros.h)
+An example of that can be seen in my [AVIF image format decoder repo](https://github.com/delneg/Nuke-AVIF-Plugin/), and specifically [here's what Swift consumes](https://github.com/delneg/Nuke-AVIF-Plugin/blob/main/Source/AVIF/AVIFDataDecoder.h)
 
 Also, there are projects like [this, that utilize Swift stable ABI to create a direct bridge between Swift <-> Rust](https://github.com/chinedufn/swift-bridge)
 
