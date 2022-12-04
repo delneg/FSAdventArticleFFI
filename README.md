@@ -121,6 +121,18 @@ _Did I manage to wrap the FFI code in a way that's safe (first of all, memory-sa
 To help make the answer to this question a confident "Yes", you might employ the help of such tools like Unit tests, Integration tests and Fuzzer testing.
 Also, it could be beneficial to utilize tools like `memory sanitizer` and / or `valgrind` in order to detect memory leaks early, as well as the wide range of dotnet-specific tools available.
 
+5. **Ease of testing & unhandled errors**
+
+_Will I be able to set up unit testing / integration testing in such a way that native code is either working correctly 100% of the time or mocked, or can it be a problem?_
+
+Due to the nature of FFI code, it's very easy to have `Unhandled exception. System.EntryPointNotFoundException: Unable to find an entry point named 'foo' in DLL 'bar'`
+or `Unhandled exception. System.DllNotFoundException: Unable to load DLL 'bar' or one of its dependencies: The specified module could not be found.`
+blast in your face in runtime. 
+Yes, you heard that right - those are `runtime` errors, meaning that you won't find out that you have a problem until in crashes.
+In order to avoid that, you have to understand your target platforms (for development, testing and production environments) - because if, for example, 
+someone new joins the company with an M1/M2 Mac while your library is only built for x86_64 - it will take some time to configure the new build process and get it working.
+Or, for example, you're trying to run your fancy integration test suite on CI and everything goes well until AWS Graviton comes around.
+So, you have to try to predict how your native code will be used and set up build process for all potentially supported [target triplets](https://wiki.osdev.org/Target_Triplet)
 
 ## Comparison with other languages / runtimes methods to do FFI
 
